@@ -3,9 +3,451 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+
+    <title>Smart Currency Converter</title>
+
+    <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-    
+
+    <!-- ================= NAVBAR ================= -->
+
+    <header class="navbar">
+
+        <div class="brand">
+            
+
+            <span class="brand-name">Smart Currency Converter</span>
+        </div>
+
+        <nav class="navigation">
+            <a href="#" class="nav-link active">
+                <span class="nav-icon">⌂</span>
+                Home
+            </a>
+
+            <a href="#history" class="nav-link">
+                <span class="nav-icon">◷</span>
+                History
+            </a>
+
+        </nav>
+
+    </header>
+
+
+    <!-- ================= MAIN CONTENT ================= -->
+
+    <main class="main-content">
+
+        <!-- Hero -->
+
+        <section class="hero">
+            <h1>Convert Currencies Instantly</h1>
+
+            <p>
+                Get real-time exchange rates and track your conversion history.
+            </p>
+        </section>
+
+
+        <!-- ================= CONVERTER CARD ================= -->
+
+        <section class="converter-card">
+
+            <div class="converter-inputs">
+
+                <!-- Amount -->
+
+                <div class="input-group amount-group">
+                    <label for="amount">Amount</label>
+
+                    <input
+                        type="number"
+                        id="amount"
+                        value="100"
+                        min="0"
+                        step="0.01"
+                        placeholder="Enter amount"
+                    >
+                </div>
+
+
+                <!-- From Currency -->
+
+                <div class="input-group currency-group">
+
+                    <label for="fromCurrency">From</label>
+
+                    <div class="select-wrapper">
+
+                        <span class="currency-flag" id="fromFlag">🇺🇸</span>
+
+                        <select id="fromCurrency">
+                            <option value="USD">USD - US Dollar</option>
+                            <option value="EUR">EUR - Euro</option>
+                            <option value="GBP">GBP - British Pound</option>
+                            <option value="JPY">JPY - Japanese Yen</option>
+                            <option value="CAD">CAD - Canadian Dollar</option>
+                            <option value="JOD">JOD - Jordanian Dinar</option>
+                        </select>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Swap Button -->
+
+                <button
+                    class="swap-button"
+                    id="swapButton"
+                    title="Swap currencies"
+                    type="button"
+                >
+                    ⇄
+                </button>
+
+
+                <!-- To Currency -->
+
+                <div class="input-group currency-group">
+
+                    <label for="toCurrency">To</label>
+
+                    <div class="select-wrapper">
+
+                        <span class="currency-flag" id="toFlag">🇪🇺</span>
+
+                        <select id="toCurrency">
+                            <option value="EUR">EUR - Euro</option>
+                            <option value="USD">USD - US Dollar</option>
+                            <option value="GBP">GBP - British Pound</option>
+                            <option value="JPY">JPY - Japanese Yen</option>
+                            <option value="CAD">CAD - Canadian Dollar</option>
+                            <option value="JOD">JOD - Jordanian Dinar</option>
+                        </select>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Convert Button -->
+
+                <button
+                    class="convert-button"
+                    id="convertButton"
+                    type="button"
+                >
+                    <span>⇄</span>
+                    Convert
+                </button>
+
+            </div>
+
+
+            <!-- ================= RESULT ================= -->
+
+            <div class="result-box" id="resultBox">
+
+                <div class="result-label">
+                    Conversion Result
+                </div>
+
+                <div class="result-main">
+
+                    <span id="originalResult">
+                        100.00 USD
+                    </span>
+
+                    <span class="equals">=</span>
+
+                    <span class="converted-result" id="convertedResult">
+                        92.35 EUR
+                    </span>
+
+                </div>
+
+                <div class="result-details">
+
+                    <span id="exchangeRate">
+                        Exchange Rate: 1 USD = 0.9235 EUR
+                    </span>
+
+                    <span class="updated-time" id="updatedTime">
+                        ◷ Updated just now
+                    </span>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= HISTORY ================= -->
+
+        <section class="history-card" id="history">
+
+            <div class="history-header">
+
+                <h2>Recent Conversions</h2>
+
+                <button class="history-button" id="viewHistoryButton">
+                    View All History
+                    <span>›</span>
+                </button>
+
+            </div>
+
+
+            <div class="table-container">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>From</th>
+                            <th>To</th>
+                            <th>Amount</th>
+                            <th>Converted Amount</th>
+                            <th>Exchange Rate</th>
+                            <th>Date & Time</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="historyTable">
+
+                        <tr>
+                            <td>
+                                <div class="currency-cell">
+                                    <span class="table-flag">🇺🇸</span>
+                                    <div>
+                                        <strong>USD</strong>
+                                        <small>US Dollar</small>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td>
+                                <div class="currency-cell">
+                                    <span class="arrow-right">→</span>
+
+                                    <span class="table-flag">🇪🇺</span>
+
+                                    <div>
+                                        <strong>EUR</strong>
+                                        <small>Euro</small>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td>100.00 USD</td>
+
+                            <td class="success-text">
+                                92.35 EUR
+                            </td>
+
+                            <td>
+                                1 USD = 0.9235 EUR
+                            </td>
+
+                            <td>
+                                May 24, 2025 10:30 AM
+                            </td>
+
+                        </tr>
+
+
+                        <tr>
+                            <td>
+                                <div class="currency-cell">
+                                    <span class="table-flag">🇪🇺</span>
+
+                                    <div>
+                                        <strong>EUR</strong>
+                                        <small>Euro</small>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td>
+                                <div class="currency-cell">
+                                    <span class="arrow-right">→</span>
+
+                                    <span class="table-flag">🇬🇧</span>
+
+                                    <div>
+                                        <strong>GBP</strong>
+                                        <small>British Pound</small>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td>50.00 EUR</td>
+
+                            <td class="success-text">
+                                42.35 GBP
+                            </td>
+
+                            <td>
+                                1 EUR = 0.8470 GBP
+                            </td>
+
+                            <td>
+                                May 24, 2025 09:15 AM
+                            </td>
+
+                        </tr>
+
+
+                        <tr>
+                            <td>
+                                <div class="currency-cell">
+                                    <span class="table-flag">🇺🇸</span>
+
+                                    <div>
+                                        <strong>USD</strong>
+                                        <small>US Dollar</small>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td>
+                                <div class="currency-cell">
+                                    <span class="arrow-right">→</span>
+
+                                    <span class="table-flag">🇯🇵</span>
+
+                                    <div>
+                                        <strong>JPY</strong>
+                                        <small>Japanese Yen</small>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td>200.00 USD</td>
+
+                            <td class="success-text">
+                                31,240.00 JPY
+                            </td>
+
+                            <td>
+                                1 USD = 156.2000 JPY
+                            </td>
+
+                            <td>
+                                May 23, 2025 04:45 PM
+                            </td>
+
+                        </tr>
+
+
+                        <tr>
+                            <td>
+                                <div class="currency-cell">
+                                    <span class="table-flag">🇺🇸</span>
+
+                                    <div>
+                                        <strong>USD</strong>
+                                        <small>US Dollar</small>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td>
+                                <div class="currency-cell">
+                                    <span class="arrow-right">→</span>
+
+                                    <span class="table-flag">🇨🇦</span>
+
+                                    <div>
+                                        <strong>CAD</strong>
+                                        <small>Canadian Dollar</small>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td>75.00 USD</td>
+
+                            <td class="success-text">
+                                101.25 CAD
+                            </td>
+
+                            <td>
+                                1 USD = 1.3500 CAD
+                            </td>
+
+                            <td>
+                                May 23, 2025 02:20 PM
+                            </td>
+
+                        </tr>
+
+
+                        <tr>
+                            <td>
+                                <div class="currency-cell">
+                                    <span class="table-flag">🇬🇧</span>
+
+                                    <div>
+                                        <strong>GBP</strong>
+                                        <small>British Pound</small>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td>
+                                <div class="currency-cell">
+                                    <span class="arrow-right">→</span>
+
+                                    <span class="table-flag">🇺🇸</span>
+
+                                    <div>
+                                        <strong>USD</strong>
+                                        <small>US Dollar</small>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td>30.00 GBP</td>
+
+                            <td class="success-text">
+                                35.45 USD
+                            </td>
+
+                            <td>
+                                1 GBP = 1.1817 USD
+                            </td>
+
+                            <td>
+                                May 22, 2025 11:50 AM
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- ================= FOOTER ================= -->
+
+    <footer class="footer">
+        
+    </footer>
+
+
+    <script src="script.js"></script>
+
 </body>
 </html>
