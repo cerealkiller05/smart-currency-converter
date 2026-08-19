@@ -1,92 +1,44 @@
-// TEMPORARY SAMPLE exchange rates, real exchange rates to be added from Spring Boot Api.
-
-const exchangeRates = {
-
-    USD: {
-        USD: 1,
-        EUR: 0.9235,
-        GBP: 0.788,
-        JPY: 156.20,
-        CAD: 1.35,
-        JOD: 0.709
-    },
-
-    EUR: {
-        USD: 1.0828,
-        EUR: 1,
-        GBP: 0.847,
-        JPY: 169.20,
-        CAD: 1.462,
-        JOD: 0.768
-    },
-
-    GBP: {
-        USD: 1.269,
-        EUR: 1.1817,
-        GBP: 1,
-        JPY: 198.2,
-        CAD: 1.716,
-        JOD: 0.899
-    },
-
-    JPY: {
-        USD: 0.006402,
-        EUR: 0.00591,
-        GBP: 0.00505,
-        JPY: 1,
-        CAD: 0.00864,
-        JOD: 0.00454
-    },
-
-    CAD: {
-        USD: 0.7407,
-        EUR: 0.684,
-        GBP: 0.583,
-        JPY: 115.7,
-        CAD: 1,
-        JOD: 0.525
-    },
-
-    JOD: {
-        USD: 1.4104,
-        EUR: 1.302,
-        GBP: 1.112,
-        JPY: 220.3,
-        CAD: 1.905,
-        JOD: 1
-    }
-};
-
-
+// ==============================
 // CURRENCY INFORMATION
+// ==============================
 
 const currencyInfo = {
-
     USD: {
         name: "US Dollar",
         flag: "🇺🇸"
     },
-
     EUR: {
         name: "Euro",
         flag: "🇪🇺"
     },
-
     GBP: {
         name: "British Pound",
         flag: "🇬🇧"
     },
-
     JPY: {
         name: "Japanese Yen",
         flag: "🇯🇵"
     },
-
     CAD: {
         name: "Canadian Dollar",
         flag: "🇨🇦"
     },
-
+    AUD: {
+        name: "Australian Dollar",
+        flag: "🇦🇺"
+    },
+    CHF: {
+        name: "Swiss Franc",
+        flag: "🇨🇭"
+    },
+    CNY: {
+        name: "Chinese Yuan",
+        flag: "🇨🇳"
+    },
+    INR: {
+        name: "Indian Rupee",
+        flag: "🇮🇳"
+    },
     JOD: {
         name: "Jordanian Dinar",
         flag: "🇯🇴"
@@ -94,75 +46,94 @@ const currencyInfo = {
 };
 
 
+// ==============================
 // GET HTML ELEMENTS
+// ==============================
 
 const amountInput = document.getElementById("amount");
+const fromCurrency = document.getElementById("fromCurrency");
+const toCurrency = document.getElementById("toCurrency");
 
-const fromCurrency =
-    document.getElementById("fromCurrency");
+const convertButton = document.getElementById("convertButton");
+const swapButton = document.getElementById("swapButton");
 
-const toCurrency =
-    document.getElementById("toCurrency");
+const originalResult = document.getElementById("originalResult");
+const convertedResult = document.getElementById("convertedResult");
+const exchangeRate = document.getElementById("exchangeRate");
+const updatedTime = document.getElementById("updatedTime");
 
-const fromFlag =
-    document.getElementById("fromFlag");
-
-const toFlag =
-    document.getElementById("toFlag");
-
-const convertButton =
-    document.getElementById("convertButton");
-
-const swapButton =
-    document.getElementById("swapButton");
-
-const originalResult =
-    document.getElementById("originalResult");
-
-const convertedResult =
-    document.getElementById("convertedResult");
-
-const exchangeRate =
-    document.getElementById("exchangeRate");
-
-const updatedTime =
-    document.getElementById("updatedTime");
-
-const historyTable =
-    document.getElementById("historyTable");
+const historyTable = document.getElementById("historyTable");
 
 
-// UPDATE FLAGS
+// ==============================
+// UPDATE CURRENCY FLAGS
+// ==============================
 
 function updateFlags() {
 
     const from = fromCurrency.value;
     const to = toCurrency.value;
 
-    fromFlag.textContent =
-        currencyInfo[from].flag;
+    const fromFlag = document.getElementById("fromFlag");
+    const toFlag = document.getElementById("toFlag");
 
-    toFlag.textContent =
-        currencyInfo[to].flag;
+    if (fromFlag && currencyInfo[from]) {
+        fromFlag.textContent = currencyInfo[from].flag;
+    }
+
+    if (toFlag && currencyInfo[to]) {
+        toFlag.textContent = currencyInfo[to].flag;
+    }
 }
 
 
+// ==============================
+// FORMAT NUMBERS
+// ==============================
+
+function formatNumber(number) {
+
+    return Number(number).toLocaleString(undefined, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
+}
+
+
+function formatRate(rate) {
+
+    return Number(rate).toLocaleString(undefined, {
+        minimumFractionDigits: 4,
+        maximumFractionDigits: 4
+    });
+}
+
+
+// ==============================
+// FORMAT DATE
+// ==============================
+
+function formatDate(date) {
+
+    return date.toLocaleDateString(undefined, {
+        year: "numeric",
+        month: "short",
+        day: "numeric"
+    });
+}
+
+
+// ==============================
 // CONVERT CURRENCY
+// ==============================
 
-function convertCurrency() {
+async function convertCurrency() {
 
-    const amount =
-        parseFloat(amountInput.value);
-
-    const from =
-        fromCurrency.value;
-
-    const to =
-        toCurrency.value;
-
+    const amount = parseFloat(amountInput.value);
+    const from = fromCurrency.value;
+    const to = toCurrency.value;
 
     // Validate amount
-
     if (isNaN(amount) || amount <= 0) {
 
         alert("Please enter an amount greater than zero.");
@@ -172,155 +143,158 @@ function convertCurrency() {
         return;
     }
 
+    try {
 
-    // Get exchange rate
+        // Disable button while request is running
+        convertButton.disabled = true;
 
-    const rate =
-        exchangeRates[from][to];
+        convertButton.innerHTML = "Converting...";
 
 
-    if (!rate) {
+        // Call Spring Boot backend
+        const response = await fetch(
+            `http://localhost:8080/api/convert?from=${from}&to=${to}&amount=${amount}`
+        );
 
-        alert("Exchange rate is not available.");
 
-        return;
+        // Check for HTTP errors
+        if (!response.ok) {
+
+            throw new Error(
+                `Conversion request failed: ${response.status}`
+            );
+        }
+
+
+        // Convert response to JSON
+        const data = await response.json();
+
+
+        // ==============================
+        // DISPLAY CONVERSION RESULT
+        // ==============================
+
+        originalResult.textContent =
+            `${formatNumber(data.originalAmount)} ${data.fromCurrency}`;
+
+
+        convertedResult.textContent =
+            `${formatNumber(data.convertedAmount)} ${data.toCurrency}`;
+
+
+        exchangeRate.textContent =
+            `Exchange Rate: 1 ${data.fromCurrency} = ${formatRate(data.exchangeRate)} ${data.toCurrency}`;
+
+
+        updatedTime.textContent =
+            "◷ Updated just now";
+
+
+        // ==============================
+        // REFRESH HISTORY
+        // ==============================
+
+        await loadHistory();
+
+
+    } catch (error) {
+
+        console.error("Conversion error:", error);
+
+        alert(
+            "Unable to convert currency. Make sure the Spring Boot server is running."
+        );
+
+
+    } finally {
+
+        // Re-enable button
+        convertButton.disabled = false;
+
+        convertButton.innerHTML = "<span>⇄</span> Convert";
     }
-
-
-    // Calculate
-
-    const convertedAmount =
-        amount * rate;
-
-
-    // Display result
-
-    originalResult.textContent =
-        `${formatNumber(amount)} ${from}`;
-
-    convertedResult.textContent =
-        `${formatNumber(convertedAmount)} ${to}`;
-
-    exchangeRate.textContent =
-        `Exchange Rate: 1 ${from} = ${formatRate(rate)} ${to}`;
-
-    updatedTime.textContent =
-        `◷ Updated just now`;
-
-
-    // Add conversion to history
-
-    addToHistory(
-        from,
-        to,
-        amount,
-        convertedAmount,
-        rate
-    );
 }
 
 
-// FORMAT NUMBERS
+// ==============================
+// LOAD CONVERSION HISTORY
+// ==============================
 
-function formatNumber(number) {
+async function loadHistory() {
 
-    return new Intl.NumberFormat(
-        "en-US",
-        {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
+    try {
+
+        const response = await fetch(
+            "http://localhost:8080/api/history",
+            {
+                cache: "no-store"
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error(
+                `History request failed: ${response.status}`
+            );
         }
-    ).format(number);
+
+        const history = await response.json();
+
+        console.log("History received:", history);
+
+        historyTable.innerHTML = "";
+
+        history.forEach(transaction => {
+            addHistoryRow(transaction);
+        });
+
+    } catch (error) {
+
+        console.error("History error:", error);
+
+    }
 }
 
+// ==============================
+// ADD HISTORY ROW
+// ==============================
 
-function formatRate(rate) {
+function addHistoryRow(transaction) {
 
-    return new Intl.NumberFormat(
-        "en-US",
-        {
-            minimumFractionDigits: 4,
-            maximumFractionDigits: 4
-        }
-    ).format(rate);
-}
+    const from = transaction.fromCurrency;
+    const to = transaction.toCurrency;
 
+    const amount = transaction.originalAmount;
+    const convertedAmount = transaction.convertedAmount;
 
-// SWAP CURRENCIES
+    // Calculate rate from stored values
+    const rate = convertedAmount / amount;
 
-function swapCurrencies() {
-
-    const currentFrom =
-        fromCurrency.value;
-
-    const currentTo =
-        toCurrency.value;
+    const date = new Date(transaction.timestamp);
 
 
-    fromCurrency.value =
-        currentTo;
-
-    toCurrency.value =
-        currentFrom;
-
-
-    updateFlags();
-
-    // Automatically convert again after swapping.
-
-    convertCurrency();
-}
-
-
-// ADD HISTORY
-
-function addToHistory(
-    from,
-    to,
-    amount,
-    convertedAmount,
-    rate
-) {
-
-    const now = new Date();
-
-    const formattedDate =
-        formatDate(now);
-
-
-    const row =
-        document.createElement("tr");
+    const row = document.createElement("tr");
 
 
     row.innerHTML = `
-
         <td>
-
             <div class="currency-cell">
 
                 <span class="table-flag">
-                    ${currencyInfo[from].flag}
+                    ${currencyInfo[from]?.flag || "🌐"}
                 </span>
 
                 <div>
-
-                    <strong>
-                        ${from}
-                    </strong>
-
+                    <strong>${from}</strong>
                     <small>
-                        ${currencyInfo[from].name}
+                        ${currencyInfo[from]?.name || from}
                     </small>
-
                 </div>
 
             </div>
-
         </td>
 
 
         <td>
-
             <div class="currency-cell">
 
                 <span class="arrow-right">
@@ -328,23 +302,17 @@ function addToHistory(
                 </span>
 
                 <span class="table-flag">
-                    ${currencyInfo[to].flag}
+                    ${currencyInfo[to]?.flag || "🌐"}
                 </span>
 
                 <div>
-
-                    <strong>
-                        ${to}
-                    </strong>
-
+                    <strong>${to}</strong>
                     <small>
-                        ${currencyInfo[to].name}
+                        ${currencyInfo[to]?.name || to}
                     </small>
-
                 </div>
 
             </div>
-
         </td>
 
 
@@ -364,63 +332,37 @@ function addToHistory(
 
 
         <td>
-            ${formattedDate}
+            ${formatDate(date)}
         </td>
 
 
-        <td>
-
-            <button
-                class="delete-button"
-                title="Delete"
-                onclick="deleteHistoryRow(this)"
-            >
-                
-            </button>
-
-        </td>
-
+        <td></td>
     `;
 
 
-    // Put newest conversion at the top.
-
-    historyTable.prepend(row);
+    historyTable.appendChild(row);
 }
 
 
-// FORMAT DATE
+// ==============================
+// SWAP CURRENCIES
+// ==============================
 
-function formatDate(date) {
+function swapCurrencies() {
 
-    return date.toLocaleString(
-        "en-US",
-        {
-            month: "short",
-            day: "numeric",
-            year: "numeric",
+    const currentFrom = fromCurrency.value;
+    const currentTo = toCurrency.value;
 
-            hour: "numeric",
-            minute: "2-digit"
-        }
-    );
+    fromCurrency.value = currentTo;
+    toCurrency.value = currentFrom;
+
+    updateFlags();
 }
 
 
-// DELETE HISTORY ROW
-
-function deleteHistoryRow(button) {
-
-    const row =
-        button.closest("tr");
-
-    if (row) {
-        row.remove();
-    }
-}
-
-
+// ==============================
 // EVENT LISTENERS
+// ==============================
 
 convertButton.addEventListener(
     "click",
@@ -446,22 +388,10 @@ toCurrency.addEventListener(
 );
 
 
-// Allow Enter key to convert.
-
-amountInput.addEventListener(
-    "keydown",
-    function(event) {
-
-        if (event.key === "Enter") {
-
-            convertCurrency();
-
-        }
-
-    }
-);
-
-
-// INITIALIZE
+// ==============================
+// INITIAL PAGE LOAD
+// ==============================
 
 updateFlags();
+
+loadHistory();
